@@ -36,10 +36,10 @@ umask 0022
 
 START=`date +%s`
 DATE=`date +%F`
-VERSION=2.7
-SUFFIX=
+VERSION=2.8
+SUFFIX=-alpha
 DISTVERSION=$VERSION$SUFFIX
-BRANCH=main
+BRANCH=devel
 TEMP=/home/scratch/geographiclib-dist
 if test `hostname` = petrel; then
     DEVELSOURCE=$HOME/geographiclib
