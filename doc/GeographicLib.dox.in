@@ -915,7 +915,6 @@ the utilities directly on your computer.
  - <a href="https://geographiclib.sourceforge.io/cgi-bin/RhumbSolve">RhumbSolve</a>
  .
 
-
 <center>
 Back to \ref start.  Forward to \ref organization.  Up to \ref contents.
 </center>
@@ -4949,7 +4948,7 @@ we have
 \f[
 \begin{align}
 x_0 &= 1.5720928 \times b,\\
-y_0 &= 4.2465810 \times b.      
+y_0 &= 4.2465810 \times b.
 \end{align}
 \f]
 
@@ -7795,6 +7794,10 @@ git repository for GeographicLib</a>.
  - <a href="https://geographiclib.sourceforge.io/C++/2.8">Version 2.8</a>
    (released 202y-mm-dd)
    - Fix Cart3Convert to allow latitude = nan for geodetic coordinates.
+   - Minor improvement to EllipticFunction::am functions.
+   - Triaxial::Conformal3::t() and Triaxial::Conformal3::s() are now
+     declared const member functions.
+   - Minor internal improvements to Triaxial::Conformal3.
 
  - <a href="https://geographiclib.sourceforge.io/C++/2.7">Version 2.7</a>
    (released 2025-11-06)

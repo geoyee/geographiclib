@@ -375,57 +375,74 @@ namespace GeographicLib {
     }
   }
 
-  Math::real EllipticFunction::am(real x) const {
-    // This implements DLMF Sec 22.20(ii).
-    // See also Sala (1989), https://doi.org/10.1137/0520100, Sec 5.
+  Math::real EllipticFunction::am(real x, real& sn, real& cn, real& dn) const {
     static const real tolJAC =
       pow(numeric_limits<real>::epsilon(), real(0.75));
-    real k2 = _k2, kp2 = _kp2;
-    if (_k2 == 0)
+    // Special cases of k2 = 0 and 1.
+    if (_k2 == 0) {
+      sn = sin(x); cn = cos(x); dn = 1;
       return x;
-    else if (_kp2 == 0) {
-      return atan(sinh(x));     // gd(x)
-    } else if (_k2 < 0) {
-      // Sala Eq. 5.8
-      k2 = -_k2 / _kp2; kp2 = 1 / _kp2;
-      x *= sqrt(_kp2);
-    }
-    real a[num_], b, c[num_];
-    a[0] = 1; b = sqrt(kp2); c[0] = sqrt(k2);
-    int l = 1;
-    for (; l < num_ ||
-           GEOGRAPHICLIB_PANIC
-           ("Convergence failure in EllipticFunction::am");) {
-      a[l] = (a[l-1] + b) / 2;
-      c[l] = (a[l-1] - b) / 2;
-      b = sqrt(a[l-1] * b);
-      if (!(c[l] > tolJAC * a[l])) break;
-      ++l;
-    }
-    // Now a[l] = pi/(2*K)
-    // Need to initialize phi1 to stop Visual Studio complaining
-    real phi = a[l] * x * real(1 << l), phi1 = 0;
-    for (; l > 0; --l) {
-      phi1 = phi;
-      phi = (phi + asin(c[l] * sin(phi) / a[l])) / 2;
-    }
-    // For k2 < 0, see Sala Eq. 5.8
-    return _k2 < 0 ? phi1 - phi : phi;
-  }
-
-  Math::real EllipticFunction::am(real x, real& sn, real& cn, real& dn) const {
-    real phi = am(x);
-    if (_kp2 == 0) {
-      // Could rely on sin(gd(x)) = tanh(x) and cos(gd(x)) = 1 / cosh(x).  But
-      // this is more accurate for large |x|.
+    } else if (_kp2 == 0) {
       sn = tanh(x); cn = dn = 1 / cosh(x);
+      return atan(sinh(x));     // gd(x)
+    }
+    // Do argument reduction
+    real y = remainder(x, 2 * K()), phi;
+    long n = long(rint((x - y) / (2 * K())));
+    // Now x = 2*n * K() + y where y in [-K(), K()].  K() is the quarter
+    // period for the elliptic integral which corresponds to pi/2 in angle
+    // space.  Thus am(x) = am(y) + n*pi with am(y) in [-pi/2, pi/2].
+    if (y == 0) {
+      sn = y; cn = 1; dn = 1;
+      phi = y;
+    } else if (fabs(y) == K()) {
+      sn = copysign(real(1), y); cn = 0; dn = sqrt(_kp2);
+      phi = copysign(Math::pi()/2, y);
     } else {
+      // This implements DLMF Sec 22.20(ii).
+      // See also Sala (1989), https://doi.org/10.1137/0520100, Sec 5.
+      real k2 = _k2, kp2 = _kp2;
+      if (_k2 < 0) {
+        // Sala Eq. 5.8
+        k2 = -_k2 / _kp2; kp2 = 1 / _kp2;
+        y *= sqrt(_kp2);
+      }
+      real a[num_], b, c[num_];
+      a[0] = 1; b = sqrt(kp2); c[0] = sqrt(k2);
+      int l = 1;
+      for (; l < num_ ||
+             GEOGRAPHICLIB_PANIC
+             ("Convergence failure in EllipticFunction::am");) {
+        a[l] = (a[l-1] + b) / 2;
+        c[l] = (a[l-1] - b) / 2;
+        b = sqrt(a[l-1] * b);
+        if (!(c[l] > tolJAC * a[l])) break;
+        ++l;
+      }
+      // Now a[l] = pi/(2*K)
+      // Need to initialize phi1 to stop Visual Studio complaining
+      phi = a[l] * y * real(1 << l);
+      real phi1 = 0;
+      for (; l > 0; --l) {
+        phi1 = phi;
+        phi = (phi + asin(c[l] * sin(phi) / a[l])) / 2;
+      }
+      if (_k2 < 0)
+        // For k2 < 0, see Sala Eq. 5.8
+        phi = phi1 - phi;
       sn = sin(phi); cn = cos(phi);
-      // See comment following DLMF Eq. 22.20.5
-      // dn = cn / cos(phi1 - phi)
+      // Since abs(phi) <= pi/2, cn cannot be negative
+      if (signbit(cn)) cn = 0;
       dn = Delta(sn, cn);
     }
-    return phi;
+    if (n % 2 != 0) {
+      cn = -cn; sn = -sn;
+    }
+    return phi + n * Math::pi();
+  }
+  Math::real EllipticFunction::am(real x) const {
+    real sn, cn, dn;
+    return am(x, sn, cn, dn);
   }
 
   Math::real EllipticFunction::F(real sn, real cn, real dn) const {
@@ -479,9 +496,11 @@ namespace GeographicLib {
     // https://dlmf.nist.gov/19.25.E14
     real
       cn2 = cn*cn, dn2 = dn*dn, sn2 = sn*sn,
-      pii = cn2 != 0 ? fabs(sn) * (RF(cn2, dn2, 1) +
-                                   _alpha2 * sn2 *
-                                   RJ(cn2, dn2, 1, cn2 + _alphap2 * sn2) / 3) :
+      pii = cn2 != 0 ?
+      fabs(sn) * (RF(cn2, dn2, 1) +
+                  (_alpha2 * sn2 == 0 ? 0 :
+                   _alpha2 * sn2 *
+                   RJ(cn2, dn2, 1, cn2 + _alphap2 * sn2) / 3)) :
       Pi();
     // Enforce usual trig-like symmetries
     if (signbit(cn))
@@ -576,7 +595,7 @@ namespace GeographicLib {
 
   Math::real EllipticFunction::Ed(real ang) const {
     // ang - Math::AngNormalize(ang) is (nearly) an exact multiple of 360
-    real n = round((ang - Math::AngNormalize(ang))/Math::td);
+    real n = rint((ang - Math::AngNormalize(ang))/Math::td);
     real sn, cn;
     Math::sincosd(ang, sn, cn);
     return E(sn, cn, Delta(sn, cn)) + 4 * E() * n;

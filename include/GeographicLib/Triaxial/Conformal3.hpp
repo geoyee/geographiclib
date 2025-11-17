@@ -439,11 +439,11 @@ namespace GeographicLib {
     /**
      * @return the Ellipsoid3 object for this projection.
      **********************************************************************/
-    const Ellipsoid3& t() { return _t; }
+    const Ellipsoid3& t() const { return _t; }
     /**
      * @return the Ellipsoid3 object for the conformal sphere.
      **********************************************************************/
-    const Ellipsoid3& s() { return _s; }
+    const Ellipsoid3& s() const { return _s; }
   };
 
   } // namespace Triaxial

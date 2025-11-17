@@ -10,7 +10,6 @@
 #if !defined(GEOGRAPHICLIB_ELLIPSOID3_HPP)
 #define GEOGRAPHICLIB_ELLIPSOID3_HPP 1
 
-#include <iostream>
 #include <array>
 #include <GeographicLib/Constants.hpp>
 #include <GeographicLib/Angle.hpp>

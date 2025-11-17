@@ -7,8 +7,6 @@
  * https://geographiclib.sourceforge.io/
  **********************************************************************/
 
-#include <iostream>
-#include <iomanip>
 #include <GeographicLib/Triaxial/Conformal3.hpp>
 #include <GeographicLib/Trigfun.hpp>
 
@@ -56,7 +54,7 @@ namespace GeographicLib {
       y = x; n = 0;
     } else {
       y = remainder(x, 2 * ell.Pi());
-      n = 2 * round((x - y) / (2 * ell.Pi()));
+      n = 2 * rint((x - y) / (2 * ell.Pi()));
     }
     // Now x = n * Pi() + y where y in [-Pi(), Pi()].  Pi() is the quarter
     // period for the elliptic integral which corresponds to pi/2 in angle
@@ -105,45 +103,9 @@ namespace GeographicLib {
     return p;
   }
   Angle Conformal3::Finv(const EllipticFunction& ell, real x) {
-    real y, n;
-    if (ell.kp2() == 0) {
-      // ell.K() == inf
-      y = x; n = 0;
-    } else {
-      y = remainder(x, 2 * ell.K());
-      n = 2 * round((x - y) / (2 * ell.K()));
-    }
-    // Now x = n * K() + y where y in [-K(), K()].  K() is the quarter
-    // period for the elliptic integral which corresponds to pi/2 in angle
-    // space.
-    if (y == 0)
-      return ang::cardinal( n == 0 ? y : n ); // Preserve the sign of +/-0
-    else if (fabs(y) == ell.K())                // inf == inf is true
-      return ang::cardinal(copysign(real(1), y) + n);
-    else {
-      // solve F(phi) = y for phi
-      // F'(phi) = 1/sqrt(1 - ell.k2() * Math::sq(sin(phi)))
-      // For k2 in [0,1]
-      //    1 - ell.k2() * Math::sq(sin(phi))
-      //    = ell.kp2() + ell.k2() * Math::sq(cos(phi))
-      int countn = 0, countb = 0;
-      auto Ff = [&ell]
-        (real phi) -> pair<real, real>
-        {
-          real s = sin(phi), c = cos(phi),
-          f = ell.F(s, c, ell.Delta(s, c)),
-          fp = 1 / sqrt(ell.kp2() + ell.k2() * c*c);
-          return pair<real, real>(f, fp);
-        };
-      real z = Trigfun::root(Trigfun::FINV,
-                             Ff, fabs(y), fabs(y) * Math::pi()/(2*ell.K()),
-                             0, Math::pi()/2,
-                             1,1,1,
-                             &countn, &countb);
-      (void) countn; (void) countb;
-      // cout << "CNT " << countn << " " << countb << "\n";
-      return ang::radians(copysign(z, y)) + ang::cardinal(n);
-    }
+    real sn, cn, dn, phi = ell.am(x, sn, cn, dn),
+      m = rint( (phi - atan2(sn, cn)) / (2 * Math::pi()) );
+    return ang(sn, cn, m, true);
   }
 
   Math::real Conformal3::x(Angle omg) const {
