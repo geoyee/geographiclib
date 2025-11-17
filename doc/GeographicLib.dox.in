@@ -12,7 +12,7 @@ namespace GeographicLib {
 \mainpage GeographicLib library
 \author Charles F. F. Karney (karney@alum.mit.edu)
 \version @PROJECT_VERSION@
-\date 2025-11-06
+\date 202y-mm-dd
 
 \section abstract Abstract
 
@@ -75,7 +75,7 @@ page](../../index.html).
 
 When citing GeographicLib, use (adjust the version number and date as
 appropriate)
-- C. F. F. Karney, GeographicLib, Version @PROJECT_VERSION@ (2025-11-06),
+- C. F. F. Karney, GeographicLib, Version @PROJECT_VERSION@ (202y-mm-dd),
   https://geographiclib.sourceforge.io/C++/@PROJECT_VERSION@
 
 \section contents Contents
@@ -4875,7 +4875,7 @@ incomplete elliptic integral of the third kind,
 https://dlmf.nist.gov/19.2.E7.  This allows the projection to be
 numerically computed using EllipticFunction::Pi(real phi) const.  The
 origin of the projection is \f$\beta = 0\f$, \f$\omega = \frac12\pi\f$
-(where the scale\f$m = 1\f$); as a result, the projection simply reduces
+(where the scale \f$m = 1\f$); as a result, the projection simply reduces
 to the Mercator projection in both the oblate and prolate limits (see
 \ref jacobi-limiting).  The transformation involving tangents, that
 connects \f$\omega'\f$ to \f$\omega\f$ and \f$\beta'\f$ to \f$\beta\f$,
@@ -7791,6 +7791,10 @@ git repository for GeographicLib</a>.
    - Improve documentation for Intersect class + tool to treat case of
      equally close intersectons.
 \endif
+
+ - <a href="https://geographiclib.sourceforge.io/C++/2.8">Version 2.8</a>
+   (released 202y-mm-dd)
+   - Fix Cart3Convert to allow latitude = nan for geodetic coordinates.
 
  - <a href="https://geographiclib.sourceforge.io/C++/2.7">Version 2.7</a>
    (released 2025-11-06)

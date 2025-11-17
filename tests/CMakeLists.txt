@@ -972,3 +972,9 @@ add_test (NAME Cart3Convert1 COMMAND Cart3Convert
 set_tests_properties (Cart3Convert1
   PROPERTIES PASS_REGULAR_EXPRESSION
   "^61\\.07208 69\\.44395 -0\\.7359801[\r\n]")
+
+# Cart3Convert didn't allow latitude = nan for geodetic coordinates;
+# bug found on 2025-11-14
+add_test (NAME Cart3Convert2 COMMAND Cart3Convert -G --input-string "nan 0")
+set_tests_properties (Cart3Convert2
+  PROPERTIES PASS_REGULAR_EXPRESSION "^nan nan nan[\r\n]")
