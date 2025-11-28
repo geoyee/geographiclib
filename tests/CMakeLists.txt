@@ -22,8 +22,6 @@ if (GEOGRAPHICLIB_PRECISION GREATER 1)
 
 endif ()
 
-# add_custom_target (test DEPENDS tools testprograms tools)
-
 # Here are the tests for GeographicLib
 if (DEFINED ENV{GEOGRAPHICLIB_DATA})
   set (_DATADIR "$ENV{GEOGRAPHICLIB_DATA}")
@@ -972,9 +970,23 @@ add_test (NAME Cart3Convert1 COMMAND Cart3Convert
 set_tests_properties (Cart3Convert1
   PROPERTIES PASS_REGULAR_EXPRESSION
   "^61\\.07208 69\\.44395 -0\\.7359801[\r\n]")
-
 # Cart3Convert didn't allow latitude = nan for geodetic coordinates;
 # bug found on 2025-11-14
 add_test (NAME Cart3Convert2 COMMAND Cart3Convert -G --input-string "nan 0")
 set_tests_properties (Cart3Convert2
   PROPERTIES PASS_REGULAR_EXPRESSION "^nan nan nan[\r\n]")
+
+# Conformal3Proj fix to improve accuracy near poles for oblate/prolate
+# ellipsoids
+add_test (NAME Conformal3Proj1 COMMAND Conformal3Proj
+  -t 1 1 0.5 -r -p 7 --input-string "0 28")
+set_tests_properties (Conformal3Proj1
+  PROPERTIES PASS_REGULAR_EXPRESSION
+  # Old result: 89.999999999924 90.000000000000 755314164294.58...
+  "^89\\.999999999949 90\\.000000000000 1131114599029\\.7[34]")
+add_test (NAME Conformal3Proj2 COMMAND Conformal3Proj
+  -t 2 1 1 -r -p 7 --input-string "-30 0")
+set_tests_properties (Conformal3Proj2
+  PROPERTIES PASS_REGULAR_EXPRESSION
+  # Old result: 0.000000000000 0.000000000074 776933063319.40...
+  "^0\\.000000000000 0\\.000000000033 1742253725806\\.90")

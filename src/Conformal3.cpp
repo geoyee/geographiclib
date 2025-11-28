@@ -48,11 +48,30 @@ namespace GeographicLib {
     return p;
   }
   Angle Conformal3::Piinv(const EllipticFunction& ell, real x) {
+    // Use Math::tauf for ell.k2() == 1?
+    static const bool usetauf = true;
     real y, n;
     if (ell.kp2() == 0) {
-      // ell.Pi() == inf
-      y = x; n = 0;
-    } else {
+      // for k^2 = 1, ell.Pi() == inf
+      if constexpr (usetauf) {
+        // See tests Conformal3Proj[12] for the improvement this gives.
+        //
+        // y = Pi(phi; alpha2,1) = asinh(taup(tan(phi), alpha))/alphap2
+        // inverse of Pi = Piinv, inverse of taup is tau
+        // phi = Piinv(y; alpha2,1)
+        // tan(phi) = tau(sinh(alphap2 * y), alpha)
+        // This method preserves precision for x large, phi close to pi/2
+        real es = copysign(sqrt(fabs(ell.alpha2())), ell.alpha2()),
+          t = Math::tauf(sinh(ell.alphap2() * x), es);
+        return ang(t, 1);
+      } else {
+        // if we don't want to rely on Math::tau, we can use the general method
+        // for inverting Pi.
+        y = x; n = 0;
+      }
+    } else if (ell.k2() == 0 && ell.alpha2() == 0)
+      return ang::radians(x);
+    else {
       y = remainder(x, 2 * ell.Pi());
       n = 2 * rint((x - y) / (2 * ell.Pi()));
     }

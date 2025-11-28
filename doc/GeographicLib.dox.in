@@ -7794,10 +7794,13 @@ git repository for GeographicLib</a>.
  - <a href="https://geographiclib.sourceforge.io/C++/2.8">Version 2.8</a>
    (released 202y-mm-dd)
    - Fix Cart3Convert to allow latitude = nan for geodetic coordinates.
-   - Minor improvement to EllipticFunction::am functions.
    - Triaxial::Conformal3::t() and Triaxial::Conformal3::s() are now
      declared const member functions.
+   - Conformal3::Piinv now treats biaxial ellipsoids as a special case.
+     In particular, it calls Math::tauf when appropriate.  This is
+     substantially more accurate close to a pole.
    - Minor internal improvements to Triaxial::Conformal3.
+   - Minor improvement to EllipticFunction::am functions.
 
  - <a href="https://geographiclib.sourceforge.io/C++/2.7">Version 2.7</a>
    (released 2025-11-06)
