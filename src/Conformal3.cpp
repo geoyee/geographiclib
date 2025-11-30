@@ -175,9 +175,6 @@ namespace GeographicLib {
     // b*K(kp2) = x
     // b*K(k2)  = y
     // x*K(k2) - y*K(kp2) = 0
-    static const real
-      N = (log(real(4)) - log(Math::pi())) / (Math::pi()/2 - log(real(4))),
-      B = exp(N * Math::pi()/2) - pow(real(4), N);
     real k2 = 1/real(2);
     bool swapxy = x < y;
     int countn = 0, countb = 0;
