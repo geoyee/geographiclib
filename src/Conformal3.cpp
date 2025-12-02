@@ -102,7 +102,7 @@ namespace GeographicLib {
       auto Pif = [&ell]
         (real q) -> pair<real, real>
         {
-          real t = exp(q), sc = hypot(1, t), s = t/sc, c = 1/sc,
+          real t = exp(q), sc = hypot(real(1), t), s = t/sc, c = 1/sc,
           d = ell.Delta(s, c),
           f = ell.Pi(s, c, d),
           fp = t*c*c / (d * (ell.alpha2() >= 0 ?

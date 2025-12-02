@@ -50,7 +50,7 @@ set (PACKAGE_NAME "${PROJECT_NAME}-${PROJECT_FULLVERSION}")
 # The library version tracks the numbering given by libtool in the
 # autoconf set up.
 set (LIBVERSION_API 26)
-set (LIBVERSION_BUILD 26.2.2)
+set (LIBVERSION_BUILD 26.3.0)
 string (TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
 string (TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
 
@@ -493,7 +493,7 @@ add_custom_target (exampleprograms
   -B exampleprograms -S ${PROJECT_SOURCE_DIR}/examples
   -D USE_BOOST=${USE_BOOST}
   -D ${PROJECT_NAME}_DIR=${PROJECT_BINARY_DIR}
-  COMMAND ${CMAKE_COMMAND} --build exampleprograms --parallel 8)
+  COMMAND ${CMAKE_COMMAND} --build exampleprograms --config $<CONFIG> -j)
 add_dependencies (exampleprograms ${PROJECT_LIBRARIES})
 
 # Packaging support; we deal with

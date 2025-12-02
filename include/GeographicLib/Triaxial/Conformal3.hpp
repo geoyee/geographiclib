@@ -441,9 +441,23 @@ namespace GeographicLib {
      **********************************************************************/
     const Ellipsoid3& t() const { return _t; }
     /**
+     * @return the Ellipsoid3 object for this projection.
+     *
+     * \deprecated This non-const member function will be removed in the
+     * future.  At that point the const version will seamlessly replace it.
+     **********************************************************************/
+    const Ellipsoid3& t() { return _t; }
+    /**
      * @return the Ellipsoid3 object for the conformal sphere.
      **********************************************************************/
     const Ellipsoid3& s() const { return _s; }
+    /**
+     * @return the Ellipsoid3 object for the conformal sphere.
+     *
+     * \deprecated This non-const member function will be removed in the
+     * future.  At that point the const version will seamlessly replace it.
+     **********************************************************************/
+    const Ellipsoid3& s() { return _s; }
   };
 
   } // namespace Triaxial
