@@ -41,16 +41,8 @@ SUFFIX=-alpha
 DISTVERSION=$VERSION$SUFFIX
 BRANCH=devel
 TEMP=/home/scratch/geographiclib-dist
-if test `hostname` = petrel; then
-    DEVELSOURCE=$HOME/geographiclib
-    WINDEVELSOURCE=//datalake-pr-smb/vt-open/ckarney/geographiclib
-    WINDOWSBUILD=/var/tmp
-else
-    DEVELSOURCE=/u/geographiclib
-    WINDEVELSOURCE=//datalake-pr-smb/vt-open/ckarney/geographiclib
-    WINDOWSBUILD=/u/temp
-fi
-WINDOWSBUILDWIN=//datalake-pr-smb/vt-open/ckarney/temp
+DEVELSOURCE=$HOME/geographiclib
+WINDOWSBUILD=/var/tmp
 GITSOURCE=file://$DEVELSOURCE
 WEBDIST=/home/ckarney/web/geographiclib-web
 mkdir -p $WEBDIST/htdocs/C++
@@ -101,35 +93,37 @@ for ver in 15 16 17 18; do
         gen="Visual Studio $ver"
         installer=
         boostdir=
-        skip=
+        ignore=
         # N.B. update CPACK_NSIS_INSTALL_ROOT in CMakeLists.txt and
         # update documentation examples if VS version for binary
         # installer changes.
         test "$ver" = 15 && installer=y
         test "$ver" = 17 && test "$arch" = x64 && boostdir="-D USE_BOOST=ON -D Boost_DIR=c:/local/boost_1_89_0/lib64-msvc-14.3/cmake/Boost-1.89.0"
         # Tests GeodSolve9[23] fail with VS 18 win32
-        test "$ver" = 18 && test "$arch" = win32 && skip=":"
+        test "$ver" = 18 && test "$arch" = win32 && ignore="|| true"
         (
             echo "#! /bin/sh -exv"
             echo echo ========== cmake $pkg ==========
+            echo h=//datalake-pr-smb/vt-open/ckarney
             echo b=c:/scratch/geog-$pkg
-            echo rm -rf \$b //datalake-pr-smb/vt-open/ckarney/pkg-$pkg/GeographicLib-$VERSION/\*
-            echo 'unset GEOGRAPHICLIB_DATA'
-            echo cmake -G \"$gen\" -A $arch -D BUILD_BOTH_LIBS=ON -D CMAKE_INSTALL_PREFIX=//datalake-pr-smb/vt-open/ckarney/pkg-$pkg/GeographicLib-$VERSION -D PACKAGE_DEBUG_LIBS=ON -D CONVERT_WARNINGS_TO_ERRORS=ON -D EXAMPLEDIR= $boostdir -S . -B \$b
+            echo i=\$h/pkg-$pkg/GeographicLib-$VERSION
+            echo rm -rf \$b \$i/\*
+            echo unset GEOGRAPHICLIB_DATA
+            echo cmake -G \"$gen\" -A $arch -D BUILD_BOTH_LIBS=ON -D CMAKE_INSTALL_PREFIX=\$i -D CONVERT_WARNINGS_TO_ERRORS=ON -D EXAMPLEDIR= $boostdir -S . -B \$b
             echo cmake --build \$b --config Debug   --target ALL_BUILD
             echo cmake --build \$b --config Debug   --target testprograms
-            echo $skip cmake --build \$b --config Debug   --target RUN_TESTS
+            echo cmake --build \$b --config Debug   --target RUN_TESTS $ignore
             echo cmake --build \$b --config Debug   --target INSTALL
             echo cmake --build \$b --config Release --target ALL_BUILD
             echo cmake --build \$b --config Release --target exampleprograms
             echo cmake --build \$b --config Release --target experimental
             echo cmake --build \$b --config Release --target testprograms
-            echo $skip cmake --build \$b --config Release --target RUN_TESTS
+            echo cmake --build \$b --config Release --target RUN_TESTS $ignore
             echo cmake --build \$b --config Release --target INSTALL
             echo cmake --build \$b --config Release --target PACKAGE
             test "$installer" &&
-                echo cp \$b/GeographicLib-$DISTVERSION-*.exe $WINDEVELSOURCE/ ||
-                    true
+              echo cp \$b/GeographicLib-$DISTVERSION-*.exe \$h/geographiclib/ ||
+                true
         ) > $WINDOWSBUILD/GeographicLib-$VERSION/build-$pkg
         chmod +x $WINDOWSBUILD/GeographicLib-$VERSION/build-$pkg
     done

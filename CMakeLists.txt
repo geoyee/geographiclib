@@ -131,16 +131,6 @@ else ()
   option (BUILD_MANPAGES "Convert pod files to manpages" ON)
 endif ()
 
-# (9) When making a binary package, should we include the debug version
-# of the library?  This applies to MSVC only, because that's the
-# platform where debug and release compilations do not inter-operate.
-# It requires building as follows:
-#   cmake --build . --config Debug   --target ALL_BUILD
-#   cmake --build . --config Release --target ALL_BUILD
-#   cmake --build . --config Release --target PACKAGE
-option (PACKAGE_DEBUG_LIBS
-  "Include debug versions of library in binary package" OFF)
-
 # Figure out which libraries to build and set GEOGRAPHICLIB_LIB_TYPE_VAL
 # (used to initialize GEOGRAPHICLIB_SHARED_LIB in
 # include/GeographicLib/Config.h.in)

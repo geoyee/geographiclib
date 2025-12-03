@@ -48,9 +48,6 @@ EXAMPLEDIR "share/doc/GeographicLib-dev" "Where to install examples"
 
 CMAKE_DEBUG_POSTFIX  "The suffix for debug objects" "_d"
 
-Windows only
-PACKAGE_DEBUG_LIBS "Include debug versions of library in binary package" OFF
-
 CMake targets
 
 release mode

@@ -74,18 +74,6 @@ if (CMAKEDIR)
     NAMESPACE ${PROJECT_NAME}::
     FILE ${PROJECT_NAME_LOWER}-targets.cmake
     DESTINATION "${CMAKEDIR}")
-
-  if (MSVC AND PACKAGE_DEBUG_LIBS)
-    # Newer versions of cmake (since 3.24?) use a hash instead of ${CMAKEDIR}
-    file (GLOB TARGETS_DEBUG
-      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/Export/*/${PROJECT_NAME_LOWER}-targets-debug.cmake")
-    if (NOT TARGETS_DEBUG)
-      set (TARGETS_DEBUG
-        "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/Export/${CMAKEDIR}/${PROJECT_NAME_LOWER}-targets-debug.cmake")
-    endif ()
-    install (FILES "${TARGETS_DEBUG}"
-      DESTINATION "${CMAKEDIR}" CONFIGURATIONS Release)
-  endif ()
 endif ()
 
 # Support for pkgconfig/geographiclib.pc
