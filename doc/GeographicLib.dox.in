@@ -151,8 +151,8 @@ Various \ref utilities are provided with the library.  These illustrate
 the use of the library and are useful in their own right.  This library
 and the utilities have been tested with C++17 compliant versions of g++
 under Linux, with Apple LLVM 7.0.2 under Mac OS X, and with MS Visual
-Studio 15 (2017), 16 (2019), and 17 (2022) compiled for 32 bit and 64
-bit on Windows.
+Studio 15 (2017), 16 (2019), 17 (2022), and 18 (2026) compiled for 32
+bit and 64 bit on Windows.
 
 The section \ref geodesic documents the method of solving the geodesic
 problem.
@@ -538,7 +538,19 @@ Finally, \verbatim
   make package \endverbatim
 or building PACKAGE in Visual Studio will create a binary installer for
 GeographicLib.  For Windows, this requires in the installation of
-<a href="https://nsis.sourceforge.io">NSIS</a>.
+<a href="https://nsis.sourceforge.io">NSIS</a>.  On Windows, you should
+configure GeographicLib with <code>PACKAGE_DEBUG_LIBS</code>=ON, build both
+Release and Debug versions of the library and finally build PACKAGE in
+Release mode.  This will get the release and debug versions of the
+library included in the package.  For example, the 64-bit binary
+installer is created with \verbatim
+  cmake -G "Visual Studio 17" -A x64 \
+    -D BUILD_BOTH_LIBS=ON \
+    -D PACKAGE_DEBUG_LIBS=ON \
+    ..
+  cmake --build . --config Debug --target ALL_BUILD
+  cmake --build . --config Release --target ALL_BUILD
+  cmake --build . --config Release --target PACKAGE \endverbatim
 
 Prior to making a release, the script
 <code>develop/test-distribution.sh</code> is run on a Fedora system.  This
@@ -7796,14 +7808,25 @@ git repository for GeographicLib</a>.
    - Minor improvement to EllipticFunction::am functions.
    - `make exampleprograms` not applies the current configuration to the
      build.
-   - Visual Studio 2026 is now supported (this requires cmake version
-     4.2.0 or later).  Note that the tests `GeodSolve92` and
+   - Visual Studio 18 (2026) is now supported (this requires cmake
+     version 4.2.0 or later).  Note that the tests `GeodSolve92` and
      `GeodSolve93` fail for win32 builds with this version of Visual
      Studio.  This is a bug in Visual Studio, see
      https://developercommunity.visualstudio.com/t/11009459
-   - Remove CMake option `PACKAGE_DEBUG_LIBS`.  Now the Windows binary
-     installers only include the "release" artifacts.  (Recent versions
-     of CMake made support of this option too involved.)
+   - <b>WARNING:</b> SourceForge will, at some point, stop supporting
+     the infrastructure that enables the online versions of
+     <a href="https://geographiclib.sourceforge.io/cgi-bin/GeoConvert">
+     GeoConvert</a>,
+     <a href="https://geographiclib.sourceforge.io/cgi-bin/GeodSolve">
+     GeodSolve</a>,
+     <a href="https://geographiclib.sourceforge.io/cgi-bin/Planimeter">
+     Planimeter</a>,
+     <a href="https://geographiclib.sourceforge.io/cgi-bin/GeoidEval">
+     GeoidEval</a>, and
+     <a href="https://geographiclib.sourceforge.io/cgi-bin/RhumbSolve">
+     RhumbSolve</a>.
+     As an alternative, install GeographicLib and run the utilities
+     directly on your computer.
 
  - <a href="https://geographiclib.sourceforge.io/C++/2.7">Version 2.7</a>
    (released 2025-11-06)
